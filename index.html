@@ -1,0 +1,635 @@
+<!doctype html><html lang="ru"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Жылдыз AI Studio</title></head><body><title>Жылдыз AI Studio</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Unbounded:wght@500;700&family=Onest:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap">
+<style>
+/* Layout: sticky profile card on the left, a desk of project folders on the right,
+   formats / contacts / showreel row underneath, floating dock at the bottom. 5 switchable themes. */
+:root {
+  --bg-a: #dce8ef; --bg-b: #f1f5f7;
+  --panel: rgba(255,255,255,.62); --line: rgba(29,52,66,.12);
+  --ink: #18262f; --muted: #5d707c; --accent: #2b6c95;
+  --folder: #b6cfdc; --folder-back: #9fbfcf; --folder-ink: #18262f;
+  --arc: rgba(29,52,66,.12); --chip: rgba(255,255,255,.75); --shadow: 0 18px 40px -24px rgba(24,48,64,.45);
+  --display: "Unbounded", "Arial Black", system-ui, sans-serif;
+  --body: "Onest", "Segoe UI", system-ui, sans-serif;
+  --mono: "JetBrains Mono", ui-monospace, "SFMono-Regular", Menlo, monospace;
+  color-scheme: light;
+}
+:root[data-skin="rose"] {
+  --bg-a: #f4d9df; --bg-b: #fbeef1; --panel: rgba(255,255,255,.6); --line: rgba(96,34,52,.13);
+  --ink: #2b1a1f; --muted: #7b5a63; --accent: #b0406a; --folder: #f0c4cf; --folder-back: #e4adbb;
+  --folder-ink: #2b1a1f; --arc: rgba(96,34,52,.1); --chip: rgba(255,255,255,.72); --shadow: 0 18px 40px -24px rgba(96,34,52,.4); color-scheme: light;
+}
+:root[data-skin="burgundy"] {
+  --bg-a: #5b1f2c; --bg-b: #3a121b; --panel: rgba(255,255,255,.07); --line: rgba(255,226,230,.14);
+  --ink: #f8ecee; --muted: #d2aab2; --accent: #f3b9a5; --folder: #7c2f3e; --folder-back: #6a2533;
+  --folder-ink: #f8ecee; --arc: rgba(255,226,230,.12); --chip: rgba(255,255,255,.08); --shadow: 0 18px 40px -22px rgba(0,0,0,.6); color-scheme: dark;
+}
+:root[data-skin="black"] {
+  --bg-a: #1c1b19; --bg-b: #0e0e0d; --panel: rgba(255,255,255,.05); --line: rgba(255,248,235,.11);
+  --ink: #f0ece4; --muted: #a29b90; --accent: #dcc39c; --folder: #2c2a27; --folder-back: #232120;
+  --folder-ink: #f0ece4; --arc: rgba(255,248,235,.09); --chip: rgba(255,255,255,.06); --shadow: 0 18px 40px -22px rgba(0,0,0,.8); color-scheme: dark;
+}
+:root[data-skin="contrast"] {
+  --bg-a: #000; --bg-b: #000; --panel: #000; --line: #fff;
+  --ink: #fff; --muted: #e6e6e6; --accent: #ffe14a; --folder: #000; --folder-back: #000;
+  --folder-ink: #fff; --arc: rgba(255,255,255,.2); --chip: #000; --shadow: none; color-scheme: dark;
+}
+:root[data-skin="white"] {
+  --bg-a: #ffffff; --bg-b: #f4f3f0; --panel: #ffffff; --line: rgba(20,20,20,.1);
+  --ink: #141414; --muted: #696661; --accent: #2747b8; --folder: #ecebe7; --folder-back: #dfddd8;
+  --folder-ink: #141414; --arc: rgba(20,20,20,.08); --chip: #f4f3f0; --shadow: 0 16px 36px -26px rgba(0,0,0,.35); color-scheme: light;
+}
+
+* { box-sizing: border-box; }
+html { scroll-behavior: smooth; }
+body {
+  margin: 0; min-height: 100%;
+  background: radial-gradient(120% 90% at 85% 0%, var(--bg-b), var(--bg-a) 70%) fixed, var(--bg-a);
+  color: var(--ink); font: 400 15px/1.55 var(--body);
+  padding-left: max(16px, env(safe-area-inset-left, 0px));
+  padding-right: max(16px, env(safe-area-inset-right, 0px));
+  padding-block: 18px 110px;
+  transition: background .4s, color .4s;
+}
+a { color: inherit; }
+button { font: inherit; color: inherit; }
+:focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; }
+
+.top { max-width: 1440px; margin: 0 auto 18px; display: flex; align-items: center; justify-content: space-between; gap: 16px; }
+.brand { display: flex; align-items: center; gap: 10px; font: 500 12px/1 var(--mono); letter-spacing: .14em; text-transform: uppercase; }
+.brand i { width: 26px; height: 26px; border-radius: 8px; background: var(--ink); color: var(--bg-a); display: grid; place-items: center; font: 700 12px/1 var(--display); font-style: normal; letter-spacing: 0; }
+.top nav { display: flex; gap: 22px; font: 500 12px/1 var(--mono); letter-spacing: .12em; text-transform: uppercase; }
+.top nav a { text-decoration: none; color: var(--muted); }
+.top nav a:hover { color: var(--ink); }
+.tr { display: flex; align-items: center; gap: 14px; }
+.lang { display: flex; border: 1px solid var(--line); border-radius: 99px; padding: 3px; background: var(--chip); }
+.lang button { all: unset; cursor: pointer; font: 500 11px/1 var(--mono); letter-spacing: .08em; padding: 6px 9px; border-radius: 99px; color: var(--muted); }
+.lang button[aria-pressed="true"] { background: var(--ink); color: var(--bg-a); }
+.lang button:focus-visible { outline: 2px solid var(--accent); }
+.city { font: 400 12px/1 var(--mono); color: var(--muted); letter-spacing: .08em; }
+
+.wrap { max-width: 1440px; margin: 0 auto; display: grid; grid-template-columns: 300px minmax(0,1fr); gap: 22px; align-items: start; }
+
+/* profile card */
+.me { position: relative; background: var(--panel); border: 1px solid var(--line); border-radius: 22px; padding: 12px; box-shadow: var(--shadow); backdrop-filter: blur(14px); }
+.me .photo { position: relative; border-radius: 14px; overflow: hidden; aspect-ratio: 4/4.4; max-width: 100%; background: var(--folder); }
+.me .photo img { width: 100%; height: 100%; object-fit: cover; object-position: 50% 18%; display: block; }
+.me .badge { position: absolute; left: 10px; top: 10px; font: 500 10px/1 var(--mono); letter-spacing: .1em; text-transform: uppercase; background: rgba(255,255,255,.88); color: #15181b; padding: 7px 9px; border-radius: 99px; backdrop-filter: blur(8px); }
+.me h1 { font: 700 30px/1.02 var(--display); text-transform: uppercase; margin: 16px 6px 6px; letter-spacing: -.01em; }
+.me .role { margin: 0 6px 14px; font: 400 11px/1.4 var(--mono); color: var(--muted); letter-spacing: .06em; text-transform: uppercase; }
+.me p { margin: 0 6px 10px; color: var(--ink); font-size: 14px; }
+.me p.muted { color: var(--muted); }
+.facts { list-style: none; margin: 12px 6px; padding: 0; display: grid; gap: 7px; }
+.facts li { display: grid; grid-template-columns: 92px 1fr; gap: 8px; font-size: 13px; }
+.facts b { font: 500 10.5px/1.6 var(--mono); color: var(--muted); letter-spacing: .08em; text-transform: uppercase; }
+.me .quote { margin: 14px 6px 4px; font: 500 16px/1.35 var(--display); letter-spacing: -.01em; text-wrap: balance; }
+.me .quote em { font-style: normal; color: var(--accent); }
+.me .path { margin: 14px 6px 4px; padding-top: 12px; border-top: 1px solid var(--line); }
+.me .ph { font: 500 10.5px/1 var(--mono); letter-spacing: .12em; text-transform: uppercase; color: var(--muted); margin-bottom: 4px; }
+.me .timeline li { grid-template-columns: 92px 1fr; gap: 8px; padding: 8px 0; font-size: 13px; }
+.me .timeline span { font-size: 10px; }
+.me .tools { margin: 14px 6px 4px; padding-top: 12px; border-top: 1px solid var(--line); }
+.me .tchips { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 8px; }
+.me .tchips span { font: 500 11.5px/1 var(--mono); padding: 7px 10px; border-radius: 99px; background: var(--chip); border: 1px solid var(--line); color: var(--ink); }
+.skins { margin: 14px 6px 4px; padding-top: 12px; border-top: 1px solid var(--line); display: flex; align-items: center; gap: 8px; }
+.skins span { font: 500 10.5px/1 var(--mono); letter-spacing: .1em; text-transform: uppercase; color: var(--muted); margin-right: auto; }
+.skin { width: 22px; height: 22px; border-radius: 50%; border: 2px solid var(--line); cursor: pointer; padding: 0; position: relative; }
+.skin[aria-pressed="true"] { border-color: var(--ink); box-shadow: 0 0 0 2px var(--panel), 0 0 0 4px var(--ink); }
+.skin[data-v="blue"] { background: linear-gradient(135deg, #b6cfdc, #e9f1f5); }
+.skin[data-v="rose"] { background: linear-gradient(135deg, #f0c4cf, #fbeef1); }
+.skin[data-v="burgundy"] { background: linear-gradient(135deg, #7c2f3e, #3a121b); }
+.skin[data-v="black"] { background: linear-gradient(135deg, #3a3835, #0e0e0d); }
+.skin[data-v="contrast"] { background: conic-gradient(#000 0 50%, #ffe14a 0); }
+.skin[data-v="white"] { background: #fff; }
+
+/* section heads */
+.head { display: flex; align-items: baseline; justify-content: space-between; margin: 4px 4px 14px; gap: 12px; }
+.head h2 { margin: 0; font: 500 11px/1 var(--mono); letter-spacing: .14em; text-transform: uppercase; color: var(--muted); }
+.head .count { font: 400 11px/1 var(--mono); color: var(--muted); }
+
+/* folders */
+.desk { display: grid; grid-template-columns: repeat(4, minmax(0,1fr)); gap: 34px 22px; padding: 6px 4px 8px; }
+.folder { all: unset; cursor: pointer; display: grid; gap: 10px; justify-items: center; text-align: center; }
+.folder .f { position: relative; width: 100%; max-width: 230px; aspect-ratio: 1.32; }
+.folder .back { position: absolute; inset: 10% 0 0 0; background: var(--folder-back); border-radius: 6px 14px 14px 14px; border: 1px solid var(--line); }
+.folder .back::before { content: ""; position: absolute; left: -1px; top: -14%; width: 42%; height: 16%; background: var(--folder-back); border: 1px solid var(--line); border-bottom: 0; border-radius: 10px 14px 0 0; }
+.folder .peek { position: absolute; left: 8%; right: 8%; top: 0; height: 74%; border-radius: 8px; overflow: hidden; transform: translateY(6%) rotate(-2deg); transition: transform .35s cubic-bezier(.2,.8,.2,1); box-shadow: 0 8px 18px -10px rgba(0,0,0,.5); background: #111; }
+.folder .peek.two { left: 22%; right: 2%; transform: translateY(10%) rotate(4deg); opacity: .9; }
+.folder .peek video, .folder .peek img { width: 100%; height: 100%; object-fit: cover; display: block; }
+.folder .front { position: absolute; left: 0; right: 0; bottom: 0; height: 40%; background: var(--folder); border: 1px solid var(--line); border-radius: 12px; display: flex; align-items: flex-end; justify-content: space-between; padding: 10px 12px; color: var(--folder-ink); box-shadow: inset 0 1px 0 rgba(255,255,255,.18); }
+.folder .front .tagn { font: 500 10px/1 var(--mono); letter-spacing: .08em; opacity: .75; }
+.folder .front .go { width: 22px; height: 22px; border-radius: 7px; display: grid; place-items: center; border: 1px solid var(--line); font-size: 12px; }
+.folder:hover .peek, .folder:focus-visible .peek { transform: translateY(-10%) rotate(-1deg); }
+.folder:hover .peek.two, .folder:focus-visible .peek.two { transform: translateY(-6%) rotate(5deg); }
+.folder .t { font: 600 12.5px/1.25 var(--mono); letter-spacing: .04em; text-transform: uppercase; }
+.folder .m { font: 400 11.5px/1.3 var(--mono); color: var(--muted); margin-top: -6px; }
+
+/* lower row */
+.row { display: grid; grid-template-columns: 1fr 1fr 1.25fr; gap: 18px; margin-top: 30px; }
+.box { background: var(--panel); border: 1px solid var(--line); border-radius: 18px; padding: 16px 18px; box-shadow: var(--shadow); backdrop-filter: blur(14px); min-width: 0; }
+.box h3 { margin: 0 0 10px; font: 500 10.5px/1 var(--mono); letter-spacing: .14em; text-transform: uppercase; color: var(--muted); display: flex; justify-content: space-between; }
+.list { list-style: none; margin: 0; padding: 0; }
+.list li { display: flex; justify-content: space-between; align-items: center; gap: 10px; padding: 9px 0; border-top: 1px solid var(--line); font-size: 14px; }
+.list li:first-child { border-top: 0; }
+.list .n { font: 400 11px/1 var(--mono); color: var(--muted); white-space: nowrap; }
+.list a { text-decoration: none; }
+.list a:hover { color: var(--accent); }
+.copy { all: unset; cursor: pointer; font: 500 10.5px/1 var(--mono); letter-spacing: .08em; text-transform: uppercase; border: 1px solid var(--line); padding: 6px 9px; border-radius: 99px; color: var(--muted); }
+.copy:hover { color: var(--ink); }
+.note { margin: 10px 0 0; font-size: 12px; color: var(--muted); }
+.reel { all: unset; cursor: pointer; position: relative; border-radius: 18px; overflow: hidden; aspect-ratio: 16/9; max-width: 100%; align-self: start; display: block; background: #111; box-shadow: var(--shadow); border: 1px solid var(--line); }
+.reel video { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
+.reel .cap { position: absolute; left: 16px; bottom: 14px; right: 16px; display: flex; justify-content: space-between; align-items: flex-end; color: #fff; text-shadow: 0 1px 12px rgba(0,0,0,.6); }
+.reel .cap b { font: 700 18px/1 var(--display); text-transform: uppercase; display: block; }
+.reel .cap small { font: 400 11px/1.4 var(--mono); opacity: .85; }
+.reel .play { width: 46px; height: 46px; border-radius: 50%; background: rgba(255,255,255,.9); color: #111; display: grid; place-items: center; font-size: 16px; text-shadow: none; }
+
+/* about */
+.about { margin-top: 30px; display: grid; grid-template-columns: 1.1fr 1fr; gap: 18px; align-items: start; }
+.about .big { font: 500 clamp(20px, 2.1vw, 28px)/1.3 var(--display); margin: 0; text-wrap: balance; letter-spacing: -.01em; }
+.about .big em { font-style: normal; color: var(--accent); }
+.timeline { list-style: none; margin: 0; padding: 0; display: grid; gap: 0; }
+.timeline li { display: grid; grid-template-columns: 110px 1fr; gap: 12px; padding: 11px 0; border-top: 1px solid var(--line); font-size: 14px; }
+.timeline li:first-child { border-top: 0; }
+.timeline span { font: 500 10.5px/1.7 var(--mono); letter-spacing: .08em; text-transform: uppercase; color: var(--muted); }
+
+/* dock */
+.dock { position: fixed; left: 50%; bottom: calc(18px + env(safe-area-inset-bottom, 0px)); transform: translateX(-50%); display: flex; gap: 6px; padding: 6px; border-radius: 16px; background: var(--panel); border: 1px solid var(--line); backdrop-filter: blur(16px); box-shadow: var(--shadow); z-index: 20; }
+.dock a { width: 44px; height: 40px; border-radius: 11px; display: grid; place-items: center; text-decoration: none; color: var(--ink); }
+.dock a:hover, .dock a.on { background: var(--ink); color: var(--bg-a); }
+.dock svg { width: 18px; height: 18px; }
+
+/* modal */
+.modal { position: fixed; inset: 0; z-index: 40; background: rgba(8,8,10,.72); backdrop-filter: blur(6px); display: grid; place-items: center; padding: max(16px, env(safe-area-inset-top, 0px)) max(16px, env(safe-area-inset-right, 0px)) max(16px, env(safe-area-inset-bottom, 0px)) max(16px, env(safe-area-inset-left, 0px)); }
+[hidden] { display: none !important; }
+.sheet { width: min(1100px, 100%); max-height: 100%; overflow: auto; background: var(--bg-b); color: var(--ink); border: 1px solid var(--line); border-radius: 22px; display: grid; grid-template-columns: minmax(0, 1.25fr) minmax(0, 1fr); }
+.stage { background: #0c0c0c; display: grid; place-items: center; min-height: 320px; padding: 14px; border-radius: 22px 0 0 22px; }
+.stage { flex-direction: column; gap: 10px; }
+.fmt { display: flex; gap: 6px; justify-content: center; }
+.fmt button { all: unset; cursor: pointer; font: 500 12px/1 var(--mono); color: #ddd; border: 1px solid #555; padding: 7px 12px; border-radius: 99px; }
+.fmt button[aria-pressed="true"] { background: #fff; color: #111; border-color: #fff; }
+.stage video { max-width: 100%; max-height: 78vh; border-radius: 10px; display: block; }
+.stage .gal { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; width: 100%; }
+.stage .gal img, .stage > img { width: 100%; border-radius: 10px; display: block; }
+.stage > img { max-height: 78vh; width: auto; max-width: 100%; }
+.stage .aud { width: 100%; display: grid; gap: 14px; color: #eee; }
+.stage .aud label { font: 500 11px/1.4 var(--mono); letter-spacing: .08em; text-transform: uppercase; color: #bbb; }
+.stage audio { width: 100%; }
+.info { padding: 24px 24px 22px; display: grid; gap: 14px; align-content: start; min-width: 0; }
+.info .k { font: 500 11px/1 var(--mono); letter-spacing: .14em; text-transform: uppercase; color: var(--muted); }
+.info h4 { margin: 0; font: 700 24px/1.1 var(--display); text-transform: uppercase; text-wrap: balance; }
+.info p { margin: 0; }
+.info dl { margin: 0; display: grid; gap: 10px; }
+.info dt { font: 500 10.5px/1 var(--mono); letter-spacing: .1em; text-transform: uppercase; color: var(--muted); margin-bottom: 4px; }
+.info dd { margin: 0; font-size: 14px; }
+.chips { display: flex; flex-wrap: wrap; gap: 6px; }
+.chips span { font: 500 11px/1 var(--mono); border: 1px solid var(--line); padding: 6px 9px; border-radius: 99px; }
+.close { position: absolute; top: max(14px, env(safe-area-inset-top, 0px)); right: max(14px, env(safe-area-inset-right, 0px)); width: 42px; height: 42px; border-radius: 50%; border: 0; background: #fff; color: #111; font-size: 20px; cursor: pointer; }
+.toast { position: fixed; left: 50%; bottom: calc(80px + env(safe-area-inset-bottom, 0px)); transform: translateX(-50%); background: var(--ink); color: var(--bg-a); padding: 9px 14px; border-radius: 10px; font-size: 13px; z-index: 50; }
+
+/* decorative orbit lines, like a sketch on the desk */
+body::after { content: ""; position: fixed; inset: 0; pointer-events: none; z-index: -1;
+  background:
+    radial-gradient(closest-side, transparent 98.6%, var(--arc) 99%, transparent 100%) 62% 40% / 1500px 900px no-repeat,
+    radial-gradient(closest-side, transparent 98.6%, var(--arc) 99%, transparent 100%) 30% 120% / 1100px 800px no-repeat;
+  animation: drift 40s ease-in-out infinite alternate; }
+@keyframes drift { to { background-position: 55% 30%, 38% 110%; } }
+.me, .box, .folder .back, .folder .back::before, .folder .front, .dock { transition: background-color .5s, border-color .5s, color .5s; }
+.folder { animation: rise .8s cubic-bezier(.2,.8,.2,1) both; animation-delay: calc(var(--i) * 70ms); }
+.folder .f { transition: transform .35s cubic-bezier(.2,.8,.2,1); transform: perspective(700px) rotateX(var(--rx, 0deg)) rotateY(var(--ry, 0deg)); }
+.folder .f .front, .folder .f .peek { will-change: transform; }
+.folder:nth-child(odd) .f { animation: bob 6s ease-in-out infinite; }
+.folder:nth-child(even) .f { animation: bob 7s ease-in-out -2s infinite; }
+.folder:hover .f { animation-play-state: paused; }
+@keyframes rise { from { transform: translateY(22px) scale(.96); } }
+@keyframes bob { 50% { translate: 0 -5px; } }
+.me, .row > *, .about > * { animation: rise .9s cubic-bezier(.2,.8,.2,1) both; }
+.row > *:nth-child(2) { animation-delay: .08s; } .row > *:nth-child(3), .about > *:nth-child(2) { animation-delay: .16s; }
+.reel video { animation: kb 14s ease-in-out infinite alternate; }
+@keyframes kb { to { transform: scale(1.08); } }
+.skinflash { position: fixed; inset: 0; z-index: 60; pointer-events: none; background: var(--bg-a); clip-path: circle(0 at var(--x, 50%) var(--y, 50%)); animation: wipe .6s ease-out forwards; }
+@keyframes wipe { 0% { clip-path: circle(0 at var(--x) var(--y)); opacity: .9; } 100% { clip-path: circle(150% at var(--x) var(--y)); opacity: 0; } }
+.dock .cyc { position: relative; }
+.dock .cyc::after { content: ""; position: absolute; right: 7px; bottom: 7px; width: 7px; height: 7px; border-radius: 50%; background: var(--accent); }
+details.prompt { border: 1px solid var(--line); border-radius: 12px; padding: 10px 12px; }
+details.prompt summary { cursor: pointer; font: 500 10.5px/1.4 var(--mono); letter-spacing: .1em; text-transform: uppercase; color: var(--muted); }
+details.prompt pre { margin: 10px 0 0; white-space: pre-wrap; word-break: break-word; font: 400 12px/1.5 var(--mono); max-height: 220px; overflow: auto; }
+
+.geo2 { padding: 22px 0 10px; overflow: hidden; }
+.geotext { padding: 0 22px; display: flex; flex-wrap: wrap; align-items: flex-end; justify-content: space-between; gap: 14px 30px; }
+.big2 { font: 500 clamp(18px,1.8vw,24px)/1.3 var(--display); margin: 0; max-width: 34ch; text-wrap: balance; }
+.geotext .countries { margin: 0; }
+main { min-width: 0; }
+.marquee { overflow: hidden; max-width: 100%; padding: 26px 0 18px; -webkit-mask-image: linear-gradient(90deg, transparent, #000 6%, #000 94%, transparent); mask-image: linear-gradient(90deg, transparent, #000 6%, #000 94%, transparent); }
+.track { display: flex; gap: 22px; width: max-content; animation: roll 60s ease-in-out infinite alternate; padding: 0 22px; }
+.marquee:hover .track { animation-play-state: paused; }
+@keyframes roll { to { transform: translateX(calc(-1 * var(--shift, 0px))); } }
+.track .pol { width: 190px; max-width: none; margin: 0; flex: none; }
+
+/* services, process, geography */
+.sec { margin-top: 34px; }
+.plans { display: grid; grid-template-columns: repeat(4, minmax(0,1fr)); gap: 14px; }
+.plan { background: var(--panel); border: 1px solid var(--line); border-radius: 18px; padding: 18px; display: grid; gap: 10px; align-content: start; box-shadow: var(--shadow); min-width: 0; }
+.plan.main { border-color: var(--accent); box-shadow: 0 0 0 1px var(--accent), var(--shadow); }
+.plan .pn { font: 500 10.5px/1 var(--mono); letter-spacing: .12em; text-transform: uppercase; color: var(--muted); display: flex; justify-content: space-between; gap: 8px; }
+.plan .pn em { font-style: normal; color: var(--accent); }
+.plan .price { font: 700 30px/1 var(--display); }
+.plan .price small { font: 400 12px/1 var(--mono); color: var(--muted); margin-left: 4px; }
+.plan ul { margin: 0; padding: 0; list-style: none; display: grid; gap: 6px; font-size: 13.5px; }
+.plan li::before { content: "— "; color: var(--muted); }
+.cur { margin: 10px 4px 0; font: 400 11.5px/1.4 var(--mono); color: var(--muted); }
+.steps { display: grid; grid-template-columns: repeat(4, minmax(0,1fr)); gap: 0; background: var(--panel); border: 1px solid var(--line); border-radius: 18px; box-shadow: var(--shadow); overflow: hidden; }
+.step { padding: 18px; border-left: 1px solid var(--line); min-width: 0; }
+.step:first-child { border-left: 0; }
+.step b { display: block; font: 700 15px/1.2 var(--display); margin: 8px 0 6px; text-transform: uppercase; }
+.step span { font: 500 10.5px/1 var(--mono); letter-spacing: .1em; color: var(--accent); }
+.step p { margin: 0; font-size: 13.5px; color: var(--muted); }
+.geo { display: grid; grid-template-columns: minmax(0,1fr) minmax(0,1.6fr); gap: 18px; align-items: center; }
+.countries { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 14px; }
+.countries span { font: 500 12px/1 var(--mono); border: 1px solid var(--line); background: var(--chip); padding: 8px 11px; border-radius: 99px; }
+.countries span.now { border-color: var(--accent); color: var(--accent); }
+.pols { display: flex; justify-content: center; gap: 0; padding: 18px 0 8px; }
+.pol { width: 31%; max-width: 230px; background: #fbfaf7; padding: 8px 8px 0; border-radius: 6px; box-shadow: 0 16px 30px -18px rgba(0,0,0,.6); margin: 0 -8px; transform: rotate(var(--r)); animation: bob 7s ease-in-out infinite; animation-delay: var(--d); transition: transform .35s; }
+.pol:hover { transform: rotate(0deg) scale(1.06); z-index: 2; }
+.pol img, .pol video { width: 100%; aspect-ratio: 3/4; object-fit: cover; display: block; border-radius: 3px; }
+.pol figcaption { font: 500 11px/1 var(--mono); color: #3a3530; padding: 10px 2px 11px; text-align: center; letter-spacing: .04em; }
+@media (max-width: 1180px) { .plans { grid-template-columns: repeat(2, minmax(0,1fr)); } }
+@media (max-width: 900px) { .geo { grid-template-columns: 1fr; } .steps { grid-template-columns: repeat(2, minmax(0,1fr)); } .step:nth-child(3) { border-left: 0; } .step:nth-child(n+3) { border-top: 1px solid var(--line); } }
+@media (max-width: 560px) { .plans, .steps { grid-template-columns: 1fr; } .step { border-left: 0; border-top: 1px solid var(--line); } .step:first-child { border-top: 0; } }
+
+@media (max-width: 1180px) { .desk { grid-template-columns: repeat(3, minmax(0,1fr)); } .row { grid-template-columns: 1fr 1fr; } .row .reel { grid-column: 1 / -1; } }
+@media (max-width: 900px) {
+  .wrap { grid-template-columns: minmax(0,1fr); }
+  .me { position: static; display: grid; grid-template-columns: 180px minmax(0,1fr); gap: 0 16px; }
+  .me .photo { grid-row: span 6; }
+  .about { grid-template-columns: 1fr; }
+  .sheet { grid-template-columns: 1fr; }
+  .stage { border-radius: 22px 22px 0 0; }
+  .top nav { display: none; }
+}
+@media (max-width: 560px) {
+  .me { grid-template-columns: 1fr; }
+  .me .photo { grid-row: auto; aspect-ratio: 1/1; }
+  .desk { grid-template-columns: repeat(2, minmax(0,1fr)); gap: 26px 14px; }
+  .row { grid-template-columns: 1fr; }
+  .timeline li { grid-template-columns: 1fr; gap: 2px; }
+}
+@media (prefers-reduced-motion: reduce) { *, *::after { transition: none !important; animation: none !important; scroll-behavior: auto !important; } }
+</style>
+
+<header class="top">
+  <div class="brand" lang="en"><i>Ж</i> Zhyldyz · AI Studio</div>
+  <nav aria-label="Разделы"><a href="#works">Работы</a><a href="#prices">Цены</a><a href="#about">Обо мне</a><a href="#contacts">Контакты</a></nav>
+  <div class="tr"><div class="city"><span>Бишкек</span> · <span id="clock">—</span></div><div class="lang" role="group" aria-label="Язык"><button type="button" data-l="ru" aria-pressed="true">RU</button><button type="button" data-l="en" aria-pressed="false">EN</button><button type="button" data-l="tr" aria-pressed="false">TR</button></div></div>
+</header>
+
+<div class="wrap">
+  <aside class="me" id="about">
+    <div class="photo"><img src="media/profile.jpg" alt="Жылдыз"><span class="badge">Открыта к заказам</span></div>
+    <h1>Жылдыз</h1>
+    <div class="role">AI-видео · отели и туризм</div>
+    <p>Делаю рекламные ролики, мультфильмы и говорящие AI-аватары для отелей, туризма и брендов.</p>
+    <p class="muted">Гостиничный менеджер с международным опытом: Турция, ОАЭ, Египет и Вьетнам. Знаю, что важно гостю, и показываю это в видео.</p>
+    <p class="quote">Встречала гостей в отелях четырёх стран. Теперь рассказываю об отелях <em>через AI-видео</em>.</p>
+    <div class="tools">
+      <div class="ph">Инструменты</div>
+      <div class="tchips"><span>OpenArt</span><span>Kling 2.6 · 3.0</span><span>ElevenLabs</span><span>ChatGPT Images</span><span>Suno</span></div>
+    </div>
+    <div class="path">
+      <div class="ph">Путь</div>
+      <ol class="timeline">
+          <li><span>Учёба</span>Окончила швейцарский университет по специальности Hotel Management (гостиничный менеджмент)</li>
+          <li><span>Турция</span>Отели Анталии и Стамбула, много лет в старом городе Сиде</li>
+          <li><span>ОАЭ</span>Отели Дубая и Абу-Даби</li>
+          <li><span>Египет</span>Работа в отелях Египта</li>
+          <li><span>Вьетнам</span>Нячанг и Далат</li>
+          <li><span>Путешествия</span>Каппадокия, Кайсери, Памуккале, Абу-Даби, Душанбе</li>
+          <li><span>Сейчас</span>Живу в Бишкеке, заканчиваю программу по AI-контенту и осваиваю новые инструменты</li>
+          <li><span>Инструменты</span>OpenArt, Kling, ElevenLabs, ChatGPT Images, монтаж</li>
+        </ol>
+    </div>
+    <div class="skins" role="group" aria-label="Тема оформления">
+      <span>Тема</span>
+      <button class="skin" data-v="blue" aria-label="Голубая" title="Голубая"></button>
+      <button class="skin" data-v="rose" aria-label="Розовая" title="Розовая"></button>
+      <button class="skin" data-v="burgundy" aria-label="Бордовая" title="Бордовая"></button>
+      <button class="skin" data-v="black" aria-label="Чёрная" title="Чёрная"></button>
+      <button class="skin" data-v="contrast" aria-label="Контрастная" title="Контрастная"></button>
+      <button class="skin" data-v="white" aria-label="Белая" title="Белая"></button>
+    </div>
+  </aside>
+
+  <main>
+    <div class="head" id="works"><h2>Избранные проекты</h2><span class="count">11 папок</span></div>
+    <div class="desk" id="desk"></div>
+
+    <div class="row" id="contacts">
+      <section class="box">
+        <h3>Форматы <span>↘</span></h3>
+        <ul class="list">
+          <li>Рекламные ролики для отелей <span class="n">9:16 · 16:9</span></li>
+          <li>3D-мультфильмы с героями <span class="n">до 60 сек</span></li>
+          <li>Говорящие AI-аватары <span class="n">по 1 фото</span></li>
+          <li>Предметная AI-съёмка <span class="n">карусели</span></li>
+          <li>Озвучка и музыка <span class="n">RU · TR</span></li>
+        </ul>
+      </section>
+      <section class="box">
+        <h3>Контакты <span>↗</span></h3>
+        <ul class="list">
+          <li><a href="https://t.me/zhyldyzkipchak" target="_blank" rel="noopener">Telegram · @zhyldyzkipchak</a><span class="n">↗</span></li>
+          <li><a id="wa" href="https://wa.me/996504250082" target="_blank" rel="noopener">WhatsApp · +996 504 25 00 82</a><button class="copy" id="copywa" type="button">Копировать</button></li>
+          <li><a href="https://www.youtube.com/@MUNDOM%C3%81GICOKIDS-k9g" target="_blank" rel="noopener">YouTube · Mundo Mágico Kids (ES)</a><span class="n">↗</span></li>
+          <li>Город<span class="n">Бишкек</span></li>
+        </ul>
+        <p class="note">Пробный ролик для отеля обсудим в Telegram или WhatsApp.</p>
+      </section>
+      <button class="reel" id="reelbtn" type="button" aria-label="Смотреть showreel">
+        <video src="media/demo_showreel.mp4" poster="media/showreel.jpg" muted autoplay loop playsinline preload="metadata"></video>
+        <div class="cap"><div><b>Showreel</b><small>60 сек · все работы в одном ролике</small></div><span class="play">▶</span></div>
+      </button>
+    </div>
+
+    
+    <section class="sec" id="prices">
+      <div class="head"><h2>Услуги и цены</h2><span class="count">цены в $, оплата в сомах по курсу</span></div>
+      <div class="plans">
+        <article class="plan"><div class="pn">Пробный</div><div class="price">$30</div><ul><li>1 ролик 30–60 сек</li><li>9:16 и 16:9</li><li>Субтитры и музыка</li></ul></article>
+        <article class="plan"><div class="pn">Старт</div><div class="price">$80<small>/ мес</small></div><ul><li>4 ролика в месяц</li><li>Сценарии под ваши акции</li><li>1 правка на ролик</li></ul></article>
+        <article class="plan main"><div class="pn">Стандарт <em>основной</em></div><div class="price">$140<small>/ мес</small></div><ul><li>8 роликов в месяц</li><li>Голос и субтитры</li><li>Оффер и призыв в каждом</li><li>2 правки на ролик</li></ul></article>
+        <article class="plan"><div class="pn">Аватар отеля</div><div class="price">$50</div><ul><li>Ваш менеджер в кадре</li><li>Говорящий аватар по фото</li><li>Приветствие для гостей</li></ul></article>
+      </div>
+    </section>
+
+    <section class="sec" id="process">
+      <div class="head"><h2>Как я работаю</h2><span class="count">5 рабочих дней</span></div>
+      <div class="steps">
+        <div class="step"><span>Шаг 1</span><b>Бриф</b><p>15 минут в Telegram: номера, фишки отеля, акция месяца, фото.</p></div>
+        <div class="step"><span>Шаг 2</span><b>Сценарий</b><p>Пишу сценарий с оффером, вы утверждаете.</p></div>
+        <div class="step"><span>Шаг 3</span><b>Производство</b><p>Голос, аватар, сцены, музыка, субтитры.</p></div>
+        <div class="step"><span>Шаг 4</span><b>Сдача</b><p>Готовые файлы в двух форматах и правки.</p></div>
+      </div>
+    </section>
+
+    <section class="sec" id="geo">
+      <div class="head"><h2>Где я работала и путешествовала</h2><span class="count">6 стран</span></div>
+      <div class="box geo2">
+        <div class="geotext">
+          <p class="big2">Я видела десятки отелей изнутри. Поэтому знаю, что гость хочет увидеть до брони.</p>
+          <div class="countries"><span>Турция</span><span>ОАЭ</span><span>Египет</span><span>Вьетнам</span><span>Таджикистан</span><span class="now">Кыргызстан · сейчас</span></div>
+        </div>
+        <div class="marquee" aria-label="Фото из путешествий"><div class="track"><figure class="pol" style="--r:-3deg"><img src="media/geo_side.jpg" alt="Сиде, храм Аполлона" loading="lazy"><figcaption>Сиде, храм Аполлона</figcaption></figure><figure class="pol" style="--r:-5deg"><img src="media/geo_istanbul.jpg" alt="Стамбул" loading="lazy"><figcaption>Стамбул</figcaption></figure><figure class="pol" style="--r:3deg"><img src="media/geo_kapadokya.jpg" alt="Каппадокия" loading="lazy"><figcaption>Каппадокия</figcaption></figure><figure class="pol" style="--r:-2deg"><video src="media/geo_pamukkale.mp4" poster="media/geo_pamukkale.jpg" muted autoplay loop playsinline preload="metadata"></video><figcaption>Памуккале</figcaption></figure><figure class="pol" style="--r:4deg"><img src="media/geo_erciyes.jpg" alt="Эрджиес, Кайсери" loading="lazy"><figcaption>Эрджиес, Кайсери</figcaption></figure><figure class="pol" style="--r:-4deg"><img src="media/geo_antalya.jpg" alt="Анталья" loading="lazy"><figcaption>Анталья</figcaption></figure><figure class="pol" style="--r:2deg"><img src="media/geo_sunset.jpg" alt="Закат у моря" loading="lazy"><figcaption>Закат у моря</figcaption></figure><figure class="pol" style="--r:-3deg"><img src="media/geo_abudhabi.jpg" alt="Абу-Даби" loading="lazy"><figcaption>Абу-Даби</figcaption></figure><figure class="pol" style="--r:5deg"><img src="media/geo_istanbul_night.jpg" alt="Стамбул ночью" loading="lazy"><figcaption>Стамбул ночью</figcaption></figure><figure class="pol" style="--r:-2deg"><img src="media/geo_nhatrang.jpg" alt="Нячанг, Вьетнам" loading="lazy"><figcaption>Нячанг, Вьетнам</figcaption></figure><figure class="pol" style="--r:3deg"><video src="media/geo_bridge.mp4" poster="media/geo_bridge.jpg" muted autoplay loop playsinline preload="metadata"></video><figcaption>Стеклянный мост, Далат</figcaption></figure><figure class="pol" style="--r:-5deg"><img src="media/geo_dalat.jpg" alt="Далат, Вьетнам" loading="lazy"><figcaption>Далат, Вьетнам</figcaption></figure><figure class="pol" style="--r:2deg"><video src="media/geo_vietnam.mp4" poster="media/geo_vietnam.jpg" muted autoplay loop playsinline preload="metadata"></video><figcaption>Вьетнам</figcaption></figure><figure class="pol" style="--r:-3deg"><img src="media/geo_dushanbe.jpg" alt="Душанбе" loading="lazy"><figcaption>Душанбе</figcaption></figure><figure class="pol" style="--r:4deg"><video src="media/geo_night.mp4" poster="media/geo_night.jpg" muted autoplay loop playsinline preload="metadata"></video><figcaption>Вечерний город</figcaption></figure></div></div>
+      </div>
+    </section>
+  </main>
+</div>
+
+<nav class="dock" aria-label="Навигация">
+  <a href="#works" title="Работы" aria-label="Работы"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3" y="3" width="7" height="7" rx="2"/><rect x="14" y="3" width="7" height="7" rx="2"/><rect x="3" y="14" width="7" height="7" rx="2"/><rect x="14" y="14" width="7" height="7" rx="2"/></svg></a>
+  <a href="#about" title="Обо мне" aria-label="Обо мне"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="8" r="4"/><path d="M4 21c1.5-4 4.5-6 8-6s6.5 2 8 6"/></svg></a>
+  <a href="#" class="cyc" id="cyc" title="Сменить тему" aria-label="Сменить тему"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="9"/><path d="M12 3a9 9 0 0 0 0 18z" fill="currentColor"/></svg></a>
+  <a href="#contacts" title="Контакты" aria-label="Контакты"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3" y="5" width="18" height="14" rx="3"/><path d="m4 7 8 6 8-6"/></svg></a>
+</nav>
+
+<div class="modal" id="modal" hidden role="dialog" aria-modal="true" aria-labelledby="m-title">
+  <button class="close" id="close" type="button" aria-label="Закрыть">×</button>
+  <div class="sheet">
+    <div class="stage" id="stage"></div>
+    <div class="info">
+      <div class="k" id="m-k"></div>
+      <h4 id="m-title"></h4>
+      <p id="m-lead"></p>
+      <dl id="m-dl"></dl>
+      <div class="chips" id="m-tools"></div>
+      <div id="m-prompt"></div>
+    </div>
+  </div>
+</div>
+
+<script>
+const WORKS = [
+  { id: "history", n: "01", t: "Türkiye", m: "путешествие во времени · 39 сек", peek: ["media/demo_history.mp4"], poster: "media/demo_history.jpg",
+    kind: "video", src: "media/history_en.mp4", srcLang: { ru: "media/history_en.mp4", en: "media/history_en.mp4", tr: "media/history_tr.mp4" }, vposter: "media/history_poster.jpg",
+    k: "Туристический ролик · 9:16 · 39 сек", title: "Турция: путешествие во времени",
+    lead: "Кинематографичный ролик для туристов: древние руины Сиде оживают, и зритель видит, какими эти места были 2000 лет назад. Храм Аполлона, античный театр, ворота Адриана в Анталии, Красная башня Алании, подземный город и воздушные шары Каппадокии.",
+    dl: [["Задача", "Вызвать у туриста желание поехать: показать историю Турции красиво и за 40 секунд."],
+         ["Что сделано", "Сценарий из 8 сцен, реалистичные кадры «было — стало», голос экскурсовода на русском, музыка, шум моря, факелы и толпа, подписи мест, субтитры на английском и турецком."]],
+    tools: ["Kling 2.6", "OpenArt", "ElevenLabs", "монтаж"],
+    prompt: "Edit this image. Keep the same place, the same seashore, the same sunset sky and the same camera angle. Restore the ancient Temple of Apollo to how it looked 2000 years ago: a complete white marble temple with all columns, roof and a decorated pediment. Ancient Greek people in white and colored tunics walk up the temple steps carrying torches and flowers. Warm golden sunset light, calm Mediterranean sea behind. Photorealistic, historical film style, 9:16." },
+  { id: "kapadokya", n: "02", t: "Kapadokya", m: "мультфильм · 30 сек", peek: ["media/demo_kapadokya.mp4"], poster: "media/demo_kapadokya.jpg",
+    kind: "video", src: "media/kapadokya.mp4", vposter: "media/kapadokya_poster.jpg",
+    k: "Мультфильм · 9:16 · 30 сек", title: "Каппадокия",
+    lead: "Смешной 3D-мультфильм о путешествии Aylin и сонного Mert в Каппадокию: самолёт, пещерный отель, музей и полёт на воздушном шаре.",
+    dl: [["Задача", "Короткий развлекательный ролик о туризме на турецком языке, 30 секунд, недорого."],
+         ["Что сделано", "Герои, промты на три сцены, голоса героев, звуки, музыка, хук, субтитры на турецком и русском, финальная надпись."]],
+    tools: ["Kling 2.6", "OpenArt", "ElevenLabs", "ChatGPT Images", "монтаж"],
+    prompt: "3D animated cartoon style, the same two characters from the reference image: Aylin, a short young woman with curly hair in two fluffy buns, round glasses and a mustard yellow jacket, and Mert, a tall sleepy young man with a blue neck pillow and a beige bucket hat. One continuous scene, no white background, no scene change. At sunrise Aylin and Mert stand together inside the basket of a hot air balloon high above the fairy chimneys of Cappadocia, many colorful hot air balloons float around them… Funny cartoon expressions, golden magical sunrise light, smooth camera movement, 9:16" },
+  { id: "kyrgyz", n: "03", t: "Kyrgyzstan", m: "мультфильм · 45 сек · серия 2", peek: ["media/demo_kyrgyz.mp4"], poster: "media/demo_kyrgyz.jpg",
+    kind: "video", src: "media/kyrgyz_ru.mp4", srcLang: { ru: "media/kyrgyz_ru.mp4", en: "media/kyrgyz_tr.mp4", tr: "media/kyrgyz_tr.mp4" }, vposter: "media/kyrgyz_poster.jpg",
+    k: "Мультфильм · 9:16 · 45 сек · серия 2", title: "Кыргызстан",
+    lead: "Вторая серия про Aylin и Mert: ледяной Иссык-Куль, юрты на Сон-Куле, беркут, который крадёт панаму, и рассвет на конях.",
+    dl: [["Задача", "Продолжение серии о туризме, 40 секунд, с маленьким бюджетом: всего 3 видео по 10 секунд."],
+         ["Что сделано", "Сцены в ChatGPT Images, новая одежда героев, 13 турецких фраз в ElevenLabs, музыка в духе комуза, звуки, две версии субтитров: русский + английский и турецкий + английский."]],
+    tools: ["Kling 2.6", "OpenArt", "ElevenLabs", "ChatGPT Images", "монтаж"],
+    prompt: "3D animated cartoon style, the same two characters from the reference image: Aylin ... and Mert ... One continuous scene, full frame, no white background, no scene change. Early morning at Song-Kul lake, the sun is rising over the mountains... Aylin jumps onto her horse easily and smiles. Mert clumsily climbs onto his horse but sits backwards, facing the tail. His horse turns its head and looks at him in surprise, Aylin laughs... Then they ride slowly side by side towards the rising sun... Warm magical morning light, smooth camera movement, 9:16" },
+  { id: "archa9", n: "04", t: "Archa House", m: "реклама · 9:16 и 16:9", peek: ["media/demo_archa_9x16.mp4"], poster: "media/demo_archa_9x16.jpg",
+    kind: "video", src: "media/archa_9x16.mp4", vposter: "media/archa_9x16_poster.jpg",
+    alt: { src: "media/archa_16x9.mp4", vposter: "media/archa_16x9_poster.jpg" },
+    k: "Реклама · 9:16 и 16:9 · учебный концепт", title: "Бутик-отель «Арча Хаус»",
+    lead: "Рекламный ролик отеля в Бишкеке с одним оффером: −15% и завтрак в подарок при прямом бронировании.",
+    dl: [["Структура", "Хук, боль гостя, знакомство с менеджером, выгоды, номер и завтрак, горы рядом, оффер, контакты."],
+         ["Что сделано", "Говорящий аватар менеджера, голос, сцены отеля, субтитры, плашки, музыка. Бренд вымышленный."],
+         ["Две версии", "Вертикальная для Reels и TikTok, горизонтальная для сайта и экрана на ресепшене. Переключатель над видео."]],
+    tools: ["OpenArt", "Kling 2.6", "ElevenLabs", "монтаж"] },
+  { id: "lulu", n: "05", t: "Lulu & Bobo", m: "детский сериал · 9 серий · 2 канала", peek: ["media/demo_lulu.mp4"], poster: "media/demo_lulu.jpg",
+    kind: "video", src: "media/lulu_halloween.mp4", vposter: "media/lulu_halloween_poster.jpg",
+    k: "Детский сериал · YouTube · EN и ES · 9 серий", title: "Lulu & Bobo: Happy Halloween",
+    lead: "Мой собственный обучающий мультсериал для детей 2–5 лет на двух YouTube-каналах: Magic World Kids (английский) и Mundo Mágico Kids (испанский). Зайка Лулу, дракончик Бобо, панда Пиппа и малыш-динозавр Дино учат цвета, счёт, животных и понятия «большой — маленький». Здесь серия 3, Хэллоуин.",
+    dl: [["Задача", "Свой детский канал: короткие смешные серии с уроком, на английском и испанском языках."],
+         ["Что сделано", "Придумала героев и сериал, сняла 9 серий на двух языках: от 30-секундных Shorts до 2-минутной серии «Зоопарк» с 12 животными. Голоса героев, бейджи-подсказки, звуки, музыка и субтитры."],
+         ["Каналы", "Magic World Kids и Mundo Mágico Kids на YouTube, новые серии выходят каждую неделю."]],
+    tools: ["Kling 2.6", "OpenArt", "ChatGPT Images", "ElevenLabs", "монтаж"],
+    prompt: "Soft 3D preschool cartoon, cozy Halloween playroom, a tiny bit spooky but friendly and cute, same characters, smooth gentle animation, static camera. The little ghost raises its arms under the white sheet and does a small bouncy jump toward Lulu, as if saying a big funny \"boo\"... Lulu jumps back with a playful pretend-scared face, then notices the black tail sticking out from under the sheet and laughs." },
+  { id: "kiyim", n: "06", t: "KIYIM", m: "реклама одежды · 18 сек", peek: ["media/demo_kiyim.mp4"], poster: "media/demo_kiyim.jpg",
+    kind: "video", src: "media/kiyim.mp4", vposter: "media/kiyim_poster.jpg",
+    k: "Реклама · 9:16 · 18 сек · учебный концепт", title: "Одежда KIYIM",
+    lead: "Смешная реклама в тренде «образ за щелчок»: девушка проспала, щёлкает пальцами, и наряды меняются сами. Но один щелчок даёт бабушкин халат с бигуди.",
+    dl: [["Идея", "Популярный формат смены образов плюс юмор: ролик досматривают и пересылают друзьям."],
+         ["Что сделано", "Одна героиня в пяти образах с одинаковым лицом, щелчки со вспышками, монтаж под бит, надписи и логотип. Бренд вымышленный."]],
+    tools: ["ChatGPT Images", "монтаж", "звуковой дизайн"] },
+  { id: "avatar", n: "07", t: "AI-аватар", m: "цифровой двойник · 30 сек", peek: ["media/demo_avatar.mp4"], poster: "media/demo_avatar.jpg",
+    kind: "video", src: "media/avatar.mp4", vposter: "media/demo_avatar.jpg",
+    k: "Говорящий аватар · 30 сек", title: "Цифровой двойник",
+    lead: "Видео-представление без съёмки на камеру: аватар по одному селфи говорит моим AI-голосом, губы совпадают с речью.",
+    dl: [["Где пригодится", "Приветствие гостей, видео для Booking и сайта, ответы на частые вопросы."]],
+    tools: ["OpenArt", "ElevenLabs"] },
+  { id: "dragon", n: "08", t: "Dragon", m: "анимация · 5 сек", peek: ["media/demo_dragon.mp4"], poster: "media/demo_dragon.jpg",
+    kind: "video", src: "media/dragon.mp4", vposter: "media/demo_dragon.jpg",
+    k: "Анимация · 16:9 · 5 сек", title: "Пробуждение дракона",
+    lead: "Сказочная сцена: каменный дракон просыпается в тёмном лесу, внутри загорается свет, цвет меняется с красного на синий.",
+    dl: [["Задача", "Атмосфера и развитие действия за 5 секунд."]],
+    tools: ["Kling 3.0"] },
+  { id: "lumia", n: "09", t: "Lumia", m: "предметная съёмка · 3 кадра", peekImg: ["media/lumia_1.jpg", "media/lumia_2.jpg"],
+    kind: "gallery", imgs: ["media/lumia_1.jpg", "media/lumia_2.jpg", "media/lumia_3.jpg"],
+    k: "Предметная съёмка · учебный концепт", title: "Крем для рук LUMIA",
+    lead: "Карусель из трёх кадров в одной стилистике для маркетплейса или Instagram, без студии и фотографа.",
+    dl: [["Кадры", "Продукт в руках, текстура крема, нанесение на кожу. Мягкий дневной свет, бежевая палитра. Бренд вымышленный."]],
+    tools: ["ChatGPT Images"] },
+  { id: "chars", n: "10", t: "Aylin & Mert", m: "дизайн персонажей", peekImg: ["media/aylin_mert.jpg"],
+    kind: "image", img: "media/aylin_mert.jpg",
+    k: "Дизайн персонажей", title: "Aylin и Mert",
+    lead: "Герои двух мультфильмов. Одна картинка-референс держит их внешность одинаковой во всех сценах.",
+    dl: [["Характеры", "Aylin: энергичная, с фотоаппаратом и двумя пучками кудрей. Mert: высокий и вечно сонный, с подушкой для шеи и огромным рюкзаком."],
+         ["Серии", "«Каппадокия» и «Кыргызстан». Для второй серии герои получили тёплую одежду с кыргызским орнаментом."]],
+    tools: ["ChatGPT Images", "Kling 2.6"],
+    prompt: "3D animated cartoon style, funny young couple standing side by side, full body. Aylin: a short energetic young woman with curly dark hair in two big fluffy buns, round glasses, huge happy smile, mustard yellow jacket, camera around her neck. Mert: a tall skinny sleepy young man with half-closed eyes, an inflatable travel neck pillow around his neck, an oversized beige bucket hat, a gigantic backpack bigger than him. Bright warm colors, soft stylized 3D render, cute and comedic, plain light background, 9:16" },
+  { id: "voice", n: "11", t: "Voice & Music", m: "озвучка · музыка", peekImg: ["media/wave.jpg"],
+    kind: "audio", audios: [["Голос диктора для «Арча Хаус», русский", "media/voice_archa.mp3"], ["Фоновая музыка для «Арча Хаус»", "media/music_archa.mp3"], ["Звук мультфильма: турецкие голоса, звуки и музыка", "media/sound_kapadokya.mp3"]],
+    k: "Озвучка и музыка", title: "Голоса и звук",
+    lead: "Голоса создаю в ElevenLabs под характер ролика: тёплый голос менеджера отеля, весёлая Aylin, сонный Mert.",
+    dl: [["Языки", "Русский и турецкий."]],
+    tools: ["ElevenLabs", "сведение звука"] },
+];
+const REEL = { kind: "video", src: "media/showreel_zhyldyz.mp4", vposter: "media/showreel.jpg", k: "Showreel · 16:9 · 60 сек", title: "Showreel 2026",
+  lead: "Короткая нарезка всех работ: мультфильмы, детский сериал, реклама отеля и одежды, AI-аватар, анимация, предметная съёмка и персонажи.",
+  dl: [["Для чего", "Первое, что стоит отправить клиенту: за 40 секунд видно, что я умею."]], tools: ["монтаж", "все инструменты выше"] };
+
+const desk = document.getElementById("desk");
+const esc = s => String(s).replace(/[&<>"]/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+function renderDesk() {
+  desk.innerHTML = "";
+  WORKS.forEach((w, i) => {
+  const peeks = w.peek
+    ? w.peek.map(v => `<div class="peek"><video src="${v}" poster="${w.poster}" muted autoplay loop playsinline preload="metadata"></video></div>`).join("")
+    : w.peekImg.map((p, j) => `<div class="peek${j ? " two" : ""}"><img src="${p}" alt="" loading="lazy"></div>`).join("");
+  const b = document.createElement("button");
+  b.className = "folder"; b.type = "button"; b.dataset.i = i; b.style.setProperty("--i", i);
+  b.setAttribute("aria-label", ({ en: "Open: ", tr: "Aç: " }[LANG] || "Открыть: ") + tr(w, "title"));
+  b.innerHTML = `<div class="f"><div class="back"></div>${peeks}<div class="front"><span class="tagn">[${w.n}]</span><span class="go">↗</span></div></div>
+    <div class="t" lang="en">[${w.n}] ${esc(tr(w, "t"))}</div><div class="m">${esc(tr(w, "m"))}</div>`;
+  b.addEventListener("click", () => openWork(w));
+  const f = () => b.querySelector(".f");
+  b.addEventListener("pointermove", e => { const r = f().getBoundingClientRect(); const x = (e.clientX - r.left) / r.width - .5, y = (e.clientY - r.top) / r.height - .5;
+    f().style.setProperty("--ry", (x * 14).toFixed(1) + "deg"); f().style.setProperty("--rx", (-y * 12).toFixed(1) + "deg"); });
+  b.addEventListener("pointerleave", () => { f().style.setProperty("--ry", "0deg"); f().style.setProperty("--rx", "0deg"); });
+  desk.appendChild(b);
+});
+}
+document.getElementById("reelbtn").addEventListener("click", () => openWork(REEL));
+
+const modal = document.getElementById("modal"), stage = document.getElementById("stage");
+let lastFocus = null;
+function openWork(w) {
+  lastFocus = document.activeElement;
+  if (w.kind === "video") {
+    const src = (w.srcLang && w.srcLang[LANG]) || w.src;
+    stage.innerHTML = (w.alt ? `<div class="fmt"><button type="button" aria-pressed="true" data-f="0">9:16</button><button type="button" aria-pressed="false" data-f="1">16:9</button></div>` : "") + `<video src="${src}" poster="${w.vposter}" controls playsinline autoplay></video>`;
+    if (w.alt) stage.querySelectorAll(".fmt button").forEach(b => b.addEventListener("click", () => {
+      const v = stage.querySelector("video"), alt = b.dataset.f === "1";
+      v.src = alt ? w.alt.src : w.src; v.poster = alt ? w.alt.vposter : w.vposter; v.play().catch(() => {});
+      stage.querySelectorAll(".fmt button").forEach(x => x.setAttribute("aria-pressed", String(x === b)));
+    }));
+  }
+  else if (w.kind === "gallery") stage.innerHTML = `<div class="gal">${w.imgs.map(s => `<img src="${s}" alt="">`).join("")}</div>`;
+  else if (w.kind === "image") stage.innerHTML = `<img src="${w.img}" alt="${esc(w.title)}">`;
+  else stage.innerHTML = `<div class="aud">${w.audios.map(([l, s], ai) => `<div><label>${esc(LANG === "ru" ? l : ((tr(w, "audios") || [])[ai] || l))}</label><audio src="${s}" controls preload="none"></audio></div>`).join("")}</div>`;
+  document.getElementById("m-k").textContent = tr(w, "k");
+  document.getElementById("m-title").textContent = tr(w, "title");
+  document.getElementById("m-lead").textContent = tr(w, "lead");
+  document.getElementById("m-dl").innerHTML = tr(w, "dl").map(([a, b]) => `<div><dt>${esc(a)}</dt><dd>${esc(b)}</dd></div>`).join("");
+  document.getElementById("m-tools").innerHTML = tr(w, "tools").map(t => `<span>${esc(t)}</span>`).join("");
+  document.getElementById("m-prompt").innerHTML = w.prompt ? `<details class="prompt"><summary>${{ en: "Prompt example", tr: "Prompt örneği" }[LANG] || "Пример промта"}</summary><pre>${esc(w.prompt)}</pre></details>` : "";
+  modal.hidden = false; document.body.style.overflow = "hidden";
+  document.getElementById("close").focus();
+}
+function closeWork() {
+  stage.querySelectorAll("video,audio").forEach(m => m.pause());
+  stage.innerHTML = ""; modal.hidden = true; document.body.style.overflow = "";
+  if (lastFocus) lastFocus.focus();
+}
+document.getElementById("close").addEventListener("click", closeWork);
+modal.addEventListener("click", e => { if (e.target === modal) closeWork(); });
+document.addEventListener("keydown", e => { if (e.key === "Escape" && !modal.hidden) closeWork(); });
+
+/* themes */
+const root = document.documentElement;
+function setSkin(v) {
+  if (v === "blue") root.removeAttribute("data-skin"); else root.setAttribute("data-skin", v);
+  document.querySelectorAll(".skin").forEach(b => b.setAttribute("aria-pressed", String(b.dataset.v === v)));
+  try { localStorage.setItem("zh-skin2", v); } catch (e) {}
+}
+const ORDER = ["blue", "rose", "burgundy", "black", "contrast", "white"];
+let cur = "blue";
+function flash(x, y) {
+  if (matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+  const d = document.createElement("div"); d.className = "skinflash"; d.style.setProperty("--x", x + "px"); d.style.setProperty("--y", y + "px");
+  document.body.appendChild(d); setTimeout(() => d.remove(), 650);
+}
+function pick(v, e) { cur = v; setSkin(v); const r = e.currentTarget.getBoundingClientRect(); flash(r.left + r.width / 2, r.top + r.height / 2); }
+document.querySelectorAll(".skin").forEach(b => b.addEventListener("click", e => pick(b.dataset.v, e)));
+document.getElementById("cyc").addEventListener("click", e => { e.preventDefault(); pick(ORDER[(ORDER.indexOf(cur) + 1) % ORDER.length], e); });
+let saved = "burgundy"; try { saved = localStorage.getItem("zh-skin2") || "burgundy"; } catch (e) {}
+cur = ORDER.includes(saved) ? saved : "burgundy"; setSkin(cur);
+
+/* copy WhatsApp */
+function toast(t) { const d = document.createElement("div"); d.className = "toast"; d.textContent = t; document.body.appendChild(d); setTimeout(() => d.remove(), 1800); }
+document.getElementById("copywa").addEventListener("click", () => {
+  const num = "+996 504 25 00 82";
+  const sel = () => { const r = document.createRange(); r.selectNodeContents(document.getElementById("wa")); const s = getSelection(); s.removeAllRanges(); s.addRange(r); toast({ en: "Number selected, copy it", tr: "Numara seçildi, kopyalayın" }[LANG] || "Номер выделен, скопируйте его"); };
+  if (navigator.clipboard) navigator.clipboard.writeText(num).then(() => toast({ en: "Number copied", tr: "Numara kopyalandı" }[LANG] || "Номер скопирован"), sel); else sel();
+});
+
+const EN = {"Работы": "Work", "Цены": "Prices", "Обо мне": "About", "Контакты": "Contacts", "Бишкек": "Bishkek", "Открыта к заказам": "Open for projects", "Жылдыз": "Zhyldyz", "AI-видео · отели и туризм": "AI video · hotels & travel", "Делаю рекламные ролики, мультфильмы и говорящие AI-аватары для отелей, туризма и брендов.": "I make ads, cartoons and talking AI avatars for hotels, travel and brands.", "Гостиничный менеджер с международным опытом: Турция, ОАЭ, Египет и Вьетнам. Знаю, что важно гостю, и показываю это в видео.": "Hotel manager with international experience in Turkey, the UAE, Egypt and Vietnam. I know what matters to guests and show it on video.", "Образование": "Education", "Швейцарский университет, Hotel Management": "Swiss university, Hotel Management", "Опыт": "Experience", "Отели Турции, ОАЭ, Египта и Вьетнама": "Hotels in Turkey, the UAE, Egypt and Vietnam", "Сейчас": "Now", "Бишкек, курс AI-контента": "Bishkek, AI content program", "Тема": "Theme", "Избранные проекты": "Selected projects", "11 папок": "11 folders", "Форматы": "Formats", "Рекламные ролики для отелей": "Hotel ads", "3D-мультфильмы с героями": "3D cartoons with characters", "до 60 сек": "up to 60 s", "Говорящие AI-аватары": "Talking AI avatars", "по 1 фото": "from 1 photo", "Предметная AI-съёмка": "AI product shots", "карусели": "carousels", "Озвучка и музыка": "Voice and music", "Копировать": "Copy", "Город": "City", "Пробный ролик для отеля обсудим в Telegram или WhatsApp.": "Message me on Telegram or WhatsApp to discuss a trial video for your hotel.", "60 сек · все работы в одном ролике": "60 s · all my work in one reel", "Встречала гостей в отелях четырёх стран. Теперь рассказываю об отелях": "I welcomed guests in hotels in four countries. Now I tell hotel stories", "через AI-видео": "through AI video", "Путь": "Path", "Учёба": "Study", "Окончила швейцарский университет по специальности Hotel Management (гостиничный менеджмент)": "Graduated from a Swiss university in Hotel Management", "Турция": "Turkey", "Отели Анталии и Стамбула, много лет в старом городе Сиде": "Hotels in Antalya and Istanbul, many years in the old town of Side", "ОАЭ": "UAE", "Отели Дубая и Абу-Даби": "Hotels in Dubai and Abu Dhabi", "Египет": "Egypt", "Работа в отелях Египта": "Hotels in Egypt", "Вьетнам": "Vietnam", "Нячанг и Далат": "Nha Trang and Da Lat", "Путешествия": "Travel", "Каппадокия, Кайсери, Памуккале, Абу-Даби, Душанбе": "Cappadocia, Kayseri, Pamukkale, Abu Dhabi, Dushanbe", "Живу в Бишкеке, заканчиваю программу по AI-контенту и осваиваю новые инструменты": "Living in Bishkek, finishing an AI content program and learning new tools", "Инструменты": "Tools", "OpenArt, Kling, ElevenLabs, ChatGPT Images, монтаж": "OpenArt, Kling, ElevenLabs, ChatGPT Images, editing", "Услуги и цены": "Services and prices", "цены в $, оплата в сомах по курсу": "prices in USD, payment in local currency", "Пробный": "Trial", "1 ролик 30–60 сек": "1 video, 30–60 s", "9:16 и 16:9": "9:16 and 16:9", "Субтитры и музыка": "Subtitles and music", "Старт": "Start", "/ мес": "/ month", "4 ролика в месяц": "4 videos a month", "Сценарии под ваши акции": "Scripts for your promotions", "1 правка на ролик": "1 revision per video", "Стандарт": "Standard", "основной": "popular", "8 роликов в месяц": "8 videos a month", "Голос и субтитры": "Voice and subtitles", "Оффер и призыв в каждом": "Offer and call to action in each", "2 правки на ролик": "2 revisions per video", "Аватар отеля": "Hotel avatar", "Ваш менеджер в кадре": "Your manager on screen", "Говорящий аватар по фото": "Talking avatar from a photo", "Приветствие для гостей": "Welcome video for guests", "Как я работаю": "How I work", "5 рабочих дней": "5 working days", "Шаг 1": "Step 1", "Шаг 2": "Step 2", "Шаг 3": "Step 3", "Шаг 4": "Step 4", "Бриф": "Brief", "15 минут в Telegram: номера, фишки отеля, акция месяца, фото.": "15 minutes on Telegram: rooms, highlights, offer of the month, photos.", "Сценарий": "Script", "Пишу сценарий с оффером, вы утверждаете.": "I write a script with your offer, you approve it.", "Производство": "Production", "Голос, аватар, сцены, музыка, субтитры.": "Voice, avatar, scenes, music, subtitles.", "Сдача": "Delivery", "Готовые файлы в двух форматах и правки.": "Final files in two formats, plus revisions.", "Где я работала и путешествовала": "Where I worked and travelled", "6 стран": "6 countries", "Я видела десятки отелей изнутри. Поэтому знаю, что гость хочет увидеть до брони.": "I have seen dozens of hotels from the inside, so I know what guests want to see before they book.", "Таджикистан": "Tajikistan", "Кыргызстан · сейчас": "Kyrgyzstan · now", "Сиде, храм Аполлона": "Side, Temple of Apollo", "Стамбул": "Istanbul", "Каппадокия": "Cappadocia", "Памуккале": "Pamukkale", "Эрджиес, Кайсери": "Erciyes, Kayseri", "Анталья": "Antalya", "Закат у моря": "Sunset by the sea", "Абу-Даби": "Abu Dhabi", "Стамбул ночью": "Istanbul at night", "Нячанг, Вьетнам": "Nha Trang, Vietnam", "Далат, Вьетнам": "Da Lat, Vietnam", "Стеклянный мост, Далат": "Glass bridge, Da Lat", "Душанбе": "Dushanbe", "Вечерний город": "City at night", "Голубая": "Blue", "Розовая": "Rose", "Бордовая": "Burgundy", "Чёрная": "Black", "Контрастная": "High contrast", "Белая": "White", "Сменить тему": "Change theme", "Тема оформления": "Theme", "Разделы": "Sections", "Навигация": "Navigation", "Язык": "Language", "Закрыть": "Close", "Смотреть showreel": "Watch showreel", "Фото из путешествий": "Travel photos"};
+const WEN = {"history": {"m": "journey through time · 39 s", "k": "Travel video · 9:16 · 39 s", "title": "Türkiye: a journey through time", "lead": "A cinematic video for tourists: the ancient ruins of Side come alive, and the viewer sees these places as they were 2,000 years ago. The Temple of Apollo, the ancient theatre, Hadrian's Gate in Antalya, the Red Tower of Alanya, the underground city and the balloons of Cappadocia.", "dl": [["Task", "Make tourists want to go: show the history of Türkiye beautifully in 40 seconds."], ["What I did", "An 8-scene script, realistic then-and-now shots, a Russian tour-guide voice, music, sea, torches and crowd sounds, place captions, English and Turkish subtitles."]], "tools": ["Kling 2.6", "OpenArt", "ElevenLabs", "editing"]}, "lulu": {"m": "kids series · 9 episodes · 2 channels", "k": "Kids series · YouTube · EN & ES · 9 episodes", "title": "Lulu & Bobo: Happy Halloween", "lead": "My own educational cartoon series for kids aged 2–5 on two YouTube channels: Magic World Kids (English) and Mundo Mágico Kids (Spanish). Lulu the bunny, Bobo the baby dragon, Pippa the panda and baby dinosaur Dino teach colors, counting, animals and big vs small. Shown here: episode 3, Halloween.", "dl": [["Task", "My own kids channel: short funny episodes with a lesson, in English and Spanish."], ["What I did", "Created the characters and the series, made 9 episodes in two languages: from 30-second Shorts to a 2-minute Zoo episode with 12 animals. Character voices, word badges, sound effects, music and subtitles."], ["Channels", "Magic World Kids and Mundo Mágico Kids on YouTube, new episodes every week."]], "tools": ["Kling 2.6", "OpenArt", "ChatGPT Images", "ElevenLabs", "editing"]}, "kiyim": {"m": "fashion ad · 18 s", "k": "Ad · 9:16 · 18 s · study concept", "title": "KIYIM clothing", "lead": "A funny ad in the \"outfit in a snap\" trend: a girl oversleeps, snaps her fingers and her outfits change by themselves. But one snap gives her grandma's bathrobe and curlers.", "dl": [["Idea", "A popular outfit-transition format plus humor: people watch to the end and share it."], ["What I did", "One heroine in five looks with the same face, snaps with flashes, editing to the beat, captions and logo. The brand is fictional."]], "tools": ["ChatGPT Images", "editing", "sound design"]}, "kapadokya": {"m": "cartoon · 30 s", "k": "Cartoon · 9:16 · 30 s", "title": "Cappadocia", "lead": "A funny 3D cartoon about Aylin and sleepy Mert travelling to Cappadocia: a plane, a cave hotel, a museum and a hot air balloon ride.", "dl": [["Task", "A short entertaining travel video in Turkish, 30 seconds, on a small budget."], ["What I did", "Characters, prompts for three scenes, character voices, sound effects, music, hook, Turkish and Russian subtitles, end title."]], "tools": ["Kling 2.6", "OpenArt", "ElevenLabs", "ChatGPT Images", "editing"]}, "archa9": {"m": "ad · 9:16 and 16:9", "k": "Ad · 9:16 and 16:9 · study concept", "title": "Archa House boutique hotel", "lead": "An ad for a hotel in Bishkek with one offer: 15% off and free breakfast when booking direct.", "dl": [["Structure", "Hook, guest pain points, meet the manager, benefits, room and breakfast, nearby mountains, offer, contacts."], ["What I did", "Talking manager avatar, voice, hotel scenes, subtitles, captions, music. The brand is fictional."], ["Two versions", "Vertical for Reels and TikTok, horizontal for the website and the lobby screen. Switch above the video."]], "tools": ["OpenArt", "Kling 2.6", "ElevenLabs", "editing"]}, "avatar": {"t": "AI avatar", "m": "digital twin · 30 s", "k": "Talking avatar · 30 s", "title": "Digital twin", "lead": "A video introduction without filming: an avatar made from one selfie speaks with my AI voice, lips in sync.", "dl": [["Where it helps", "Guest welcome, videos for Booking and the website, answers to common questions."]], "tools": ["OpenArt", "ElevenLabs"]}, "dragon": {"m": "animation · 5 s", "k": "Animation · 16:9 · 5 s", "title": "The dragon awakens", "lead": "A fairy-tale scene: a stone dragon wakes up in a dark forest, a light glows inside it and its color shifts from red to blue.", "dl": [["Task", "Atmosphere and a story beat in 5 seconds."]], "tools": ["Kling 3.0"]}, "lumia": {"m": "product shots · 3 frames", "k": "Product shots · study concept", "title": "LUMIA hand cream", "lead": "A three-frame carousel in one style for a marketplace or Instagram, without a studio or photographer.", "dl": [["Frames", "Product in hands, cream texture, application on skin. Soft daylight, beige palette. The brand is fictional."]], "tools": ["ChatGPT Images"]}, "chars": {"m": "character design", "k": "Character design", "title": "Aylin and Mert", "lead": "The heroes of two cartoons. One reference image keeps them looking the same in every scene.", "dl": [["Characters", "Aylin: energetic, with a camera and two curly buns. Mert: tall and always sleepy, with a neck pillow and a huge backpack."], ["Episodes", "Cappadocia and Kyrgyzstan. For episode 2 they got warm clothes with Kyrgyz ornament."]], "tools": ["ChatGPT Images", "Kling 2.6"]}, "voice": {"m": "voice · music", "k": "Voice and music", "title": "Voices and sound", "lead": "I design voices in ElevenLabs to fit each video: a warm hotel manager, cheerful Aylin, sleepy Mert.", "dl": [["Languages", "Russian and Turkish."]], "tools": ["ElevenLabs", "sound mixing"], "audios": ["Narrator for Archa House, Russian", "Background music for Archa House", "Cartoon sound: Turkish voices, effects and music"]}, "kyrgyz": {"m": "cartoon · 45 s · episode 2", "k": "Cartoon · 9:16 · 45 s · episode 2", "title": "Kyrgyzstan", "lead": "Episode 2 of Aylin and Mert: icy Issyk-Kul, yurts at Song-Kul, an eagle that steals the hat, and a sunrise ride on horses.", "dl": [["Task", "A follow-up travel episode, 40 seconds, on a small budget: only three 10-second videos."], ["What I did", "Scenes in ChatGPT Images, new outfits, 13 Turkish lines in ElevenLabs, komuz-style music, sound effects, two subtitle versions: Russian + English and Turkish + English."]], "tools": ["Kling 2.6", "OpenArt", "ElevenLabs", "ChatGPT Images", "editing"]}};
+const REEL_EN = {"k": "Showreel · 16:9 · 60 s", "title": "Showreel 2026", "lead": "A short cut of all my work: cartoons, a kids series, hotel and fashion ads, AI avatar, animation, product shots and characters.", "dl": [["What it is for", "The first thing to send a client: in 40 seconds you see what I can do."]], "tools": ["editing", "all the tools above"]};
+
+const TR = {"Работы": "Çalışmalar", "Цены": "Fiyatlar", "Обо мне": "Hakkımda", "Контакты": "İletişim", "Бишкек": "Bişkek", "Открыта к заказам": "Projelere açığım", "Жылдыз": "Zhyldyz", "AI-видео · отели и туризм": "AI video · oteller ve turizm", "Делаю рекламные ролики, мультфильмы и говорящие AI-аватары для отелей, туризма и брендов.": "Oteller, turizm ve markalar için reklam videoları, çizgi filmler ve konuşan AI avatarlar hazırlıyorum.", "Гостиничный менеджер с международным опытом: Турция, ОАЭ, Египет и Вьетнам. Знаю, что важно гостю, и показываю это в видео.": "Türkiye, BAE, Mısır ve Vietnam'da uluslararası deneyime sahip otel yöneticisiyim. Misafir için neyin önemli olduğunu biliyor ve bunu videoda gösteriyorum.", "Образование": "Eğitim", "Швейцарский университет, Hotel Management": "İsviçre'de üniversite, Hotel Management", "Опыт": "Deneyim", "Отели Турции, ОАЭ, Египта и Вьетнама": "Türkiye, BAE, Mısır ve Vietnam'da oteller", "Сейчас": "Şimdi", "Бишкек, курс AI-контента": "Bişkek, AI içerik programı", "Тема": "Tema", "Избранные проекты": "Seçilmiş projeler", "11 папок": "11 klasör", "Форматы": "Formatlar", "Рекламные ролики для отелей": "Otel reklamları", "3D-мультфильмы с героями": "Karakterli 3D çizgi filmler", "до 60 сек": "60 sn'ye kadar", "Говорящие AI-аватары": "Konuşan AI avatarlar", "по 1 фото": "1 fotoğraftan", "Предметная AI-съёмка": "AI ürün çekimi", "карусели": "karuseller", "Озвучка и музыка": "Seslendirme ve müzik", "Копировать": "Kopyala", "Город": "Şehir", "Пробный ролик для отеля обсудим в Telegram или WhatsApp.": "Oteliniz için deneme videosunu Telegram veya WhatsApp'tan konuşalım.", "60 сек · все работы в одном ролике": "60 sn · tüm işlerim tek videoda", "Встречала гостей в отелях четырёх стран. Теперь рассказываю об отелях": "Dört ülkede otellerde misafir ağırladım. Şimdi otelleri anlatıyorum:", "через AI-видео": "AI video ile", "Путь": "Yolculuğum", "Учёба": "Eğitim", "Окончила швейцарский университет по специальности Hotel Management (гостиничный менеджмент)": "İsviçre'de bir üniversiteden Hotel Management (otel işletmeciliği) bölümünden mezun oldum", "Турция": "Türkiye", "Отели Анталии и Стамбула, много лет в старом городе Сиде": "Antalya ve İstanbul'da oteller, uzun yıllar Side Antik Kent'te", "ОАЭ": "BAE", "Отели Дубая и Абу-Даби": "Dubai ve Abu Dabi'de oteller", "Египет": "Mısır", "Работа в отелях Египта": "Mısır'da oteller", "Вьетнам": "Vietnam", "Нячанг и Далат": "Nha Trang ve Da Lat", "Путешествия": "Seyahatler", "Каппадокия, Кайсери, Памуккале, Абу-Даби, Душанбе": "Kapadokya, Kayseri, Pamukkale, Abu Dabi, Duşanbe", "Живу в Бишкеке, заканчиваю программу по AI-контенту и осваиваю новые инструменты": "Bişkek'te yaşıyorum, AI içerik programını bitiriyor ve yeni araçlar öğreniyorum", "Инструменты": "Araçlar", "OpenArt, Kling, ElevenLabs, ChatGPT Images, монтаж": "OpenArt, Kling, ElevenLabs, ChatGPT Images, kurgu", "Услуги и цены": "Hizmetler ve fiyatlar", "цены в $, оплата в сомах по курсу": "fiyatlar USD, ödeme yerel para birimiyle", "Пробный": "Deneme", "1 ролик 30–60 сек": "1 video, 30–60 sn", "9:16 и 16:9": "9:16 ve 16:9", "Субтитры и музыка": "Altyazı ve müzik", "Старт": "Başlangıç", "/ мес": "/ ay", "4 ролика в месяц": "Ayda 4 video", "Сценарии под ваши акции": "Kampanyalarınıza özel senaryo", "1 правка на ролик": "Video başına 1 revizyon", "Стандарт": "Standart", "основной": "popüler", "8 роликов в месяц": "Ayda 8 video", "Голос и субтитры": "Ses ve altyazı", "Оффер и призыв в каждом": "Her videoda teklif ve çağrı", "2 правки на ролик": "Video başına 2 revizyon", "Аватар отеля": "Otel avatarı", "Ваш менеджер в кадре": "Müdürünüz ekranda", "Говорящий аватар по фото": "Fotoğraftan konuşan avatar", "Приветствие для гостей": "Misafirler için karşılama", "Как я работаю": "Nasıl çalışıyorum", "5 рабочих дней": "5 iş günü", "Шаг 1": "Adım 1", "Шаг 2": "Adım 2", "Шаг 3": "Adım 3", "Шаг 4": "Adım 4", "Бриф": "Brif", "15 минут в Telegram: номера, фишки отеля, акция месяца, фото.": "Telegram'da 15 dakika: odalar, otelin öne çıkanları, ayın kampanyası, fotoğraflar.", "Сценарий": "Senaryo", "Пишу сценарий с оффером, вы утверждаете.": "Teklifinizle senaryoyu yazarım, siz onaylarsınız.", "Производство": "Üretim", "Голос, аватар, сцены, музыка, субтитры.": "Ses, avatar, sahneler, müzik, altyazı.", "Сдача": "Teslim", "Готовые файлы в двух форматах и правки.": "İki formatta hazır dosyalar ve revizyonlar.", "Где я работала и путешествовала": "Çalıştığım ve gezdiğim yerler", "6 стран": "6 ülke", "Я видела десятки отелей изнутри. Поэтому знаю, что гость хочет увидеть до брони.": "Onlarca oteli içeriden gördüm. Bu yüzden misafirin rezervasyondan önce ne görmek istediğini biliyorum.", "Таджикистан": "Tacikistan", "Кыргызстан · сейчас": "Kırgızistan · şimdi", "Сиде, храм Аполлона": "Side, Apollon Tapınağı", "Стамбул": "İstanbul", "Каппадокия": "Kapadokya", "Памуккале": "Pamukkale", "Эрджиес, Кайсери": "Erciyes, Kayseri", "Анталья": "Antalya", "Закат у моря": "Denizde gün batımı", "Абу-Даби": "Abu Dabi", "Стамбул ночью": "Gece İstanbul", "Нячанг, Вьетнам": "Nha Trang, Vietnam", "Далат, Вьетнам": "Da Lat, Vietnam", "Стеклянный мост, Далат": "Cam köprü, Da Lat", "Душанбе": "Duşanbe", "Вечерний город": "Akşam şehir", "Голубая": "Mavi", "Розовая": "Pembe", "Бордовая": "Bordo", "Чёрная": "Siyah", "Контрастная": "Yüksek kontrast", "Белая": "Beyaz", "Сменить тему": "Temayı değiştir", "Тема оформления": "Tema", "Разделы": "Bölümler", "Навигация": "Gezinme", "Язык": "Dil", "Закрыть": "Kapat", "Смотреть showreel": "Showreel'i izle", "Фото из путешествий": "Seyahat fotoğrafları"};
+const WTR = {"history": {"m": "zamanda yolculuk · 39 sn", "k": "Turizm videosu · 9:16 · 39 sn", "title": "Türkiye: zamanda yolculuk", "lead": "Turistler için sinematik bir video: Side'nin antik kalıntıları canlanıyor ve izleyici bu yerlerin 2000 yıl önce nasıl olduğunu görüyor. Apollon Tapınağı, antik tiyatro, Antalya'daki Hadrian Kapısı, Alanya Kızıl Kule, yeraltı şehri ve Kapadokya balonları.", "dl": [["Görev", "Turistte gitme isteği uyandırmak: Türkiye'nin tarihini 40 saniyede güzelce göstermek."], ["Yaptıklarım", "8 sahnelik senaryo, gerçekçi önce-sonra kareleri, Rusça rehber sesi, müzik, deniz, meşale ve kalabalık sesleri, yer yazıları, İngilizce ve Türkçe altyazı."]], "tools": ["Kling 2.6", "OpenArt", "ElevenLabs", "kurgu"]}, "lulu": {"m": "çocuk dizisi · 9 bölüm · 2 kanal", "k": "Çocuk dizisi · YouTube · EN ve ES · 9 bölüm", "title": "Lulu & Bobo: Happy Halloween", "lead": "2–5 yaş çocuklar için kendi eğitici çizgi dizim, iki YouTube kanalında: Magic World Kids (İngilizce) ve Mundo Mágico Kids (İspanyolca). Tavşan Lulu, yavru ejderha Bobo, panda Pippa ve yavru dinozor Dino renkleri, saymayı, hayvanları ve büyük-küçük kavramını öğretiyor. Burada 3. bölüm: Cadılar Bayramı.", "dl": [["Görev", "Kendi çocuk kanalım: İngilizce ve İspanyolca, dersli kısa komik bölümler."], ["Ne yaptım", "Karakterleri ve diziyi tasarladım, iki dilde 9 bölüm hazırladım: 30 saniyelik Shorts'tan 12 hayvanlı 2 dakikalık Hayvanat Bahçesi bölümüne kadar. Karakter sesleri, kelime rozetleri, efektler, müzik ve altyazı."], ["Kanallar", "YouTube'da Magic World Kids ve Mundo Mágico Kids, her hafta yeni bölüm."]], "tools": ["Kling 2.6", "OpenArt", "ChatGPT Images", "ElevenLabs", "kurgu"]}, "kiyim": {"m": "giyim reklamı · 18 sn", "k": "Reklam · 9:16 · 18 sn · eğitim konsepti", "title": "KIYIM giyim", "lead": "\"Bir şıklatmada kombin\" trendinde komik bir reklam: uyuyakalan kız parmaklarını şıklatıyor ve kıyafetleri kendiliğinden değişiyor. Ama bir şıklatma ona babaannesinin sabahlığını ve bigudileri getiriyor.", "dl": [["Fikir", "Popüler kombin geçişi formatı ve mizah: izleyenler sonuna kadar izliyor ve paylaşıyor."], ["Ne yaptım", "Beş kombinde aynı yüzle tek kahraman, flaşlı şıklatmalar, ritme göre kurgu, yazılar ve logo. Marka hayalidir."]], "tools": ["ChatGPT Images", "kurgu", "ses tasarımı"]}, "kapadokya": {"m": "çizgi film · 30 sn", "k": "Çizgi film · 9:16 · 30 sn", "title": "Kapadokya", "lead": "Aylin ve uykucu Mert'in Kapadokya yolculuğunu anlatan komik bir 3D çizgi film: uçak, mağara otel, müze ve balon turu.", "dl": [["Görev", "Türkçe, 30 saniyelik, düşük bütçeli eğlenceli bir seyahat videosu."], ["Yaptıklarım", "Karakterler, üç sahne için promptlar, karakter sesleri, efektler, müzik, kanca, Türkçe ve Rusça altyazı, kapanış yazısı."]], "tools": ["Kling 2.6", "OpenArt", "ElevenLabs", "ChatGPT Images", "kurgu"]}, "archa9": {"m": "reklam · 9:16 ve 16:9", "k": "Reklam · 9:16 ve 16:9 · eğitim projesi", "title": "Archa House butik otel", "lead": "Bişkek'teki bir otel için tek teklifli reklam: doğrudan rezervasyonda %15 indirim ve hediye kahvaltı.", "dl": [["Yapı", "Kanca, misafirin sorunu, müdürle tanışma, avantajlar, oda ve kahvaltı, yakındaki dağlar, teklif, iletişim."], ["Yaptıklarım", "Konuşan müdür avatarı, ses, otel sahneleri, altyazı, etiketler, müzik. Marka hayalidir."], ["İki versiyon", "Dikey Reels ve TikTok için, yatay web sitesi ve resepsiyon ekranı için. Videonun üstünde geçiş var."]], "tools": ["OpenArt", "Kling 2.6", "ElevenLabs", "kurgu"]}, "avatar": {"t": "AI avatar", "m": "dijital ikiz · 30 sn", "k": "Konuşan avatar · 30 sn", "title": "Dijital ikiz", "lead": "Kamera çekimi olmadan tanıtım videosu: tek bir selfieden yapılan avatar AI sesimle konuşuyor, dudaklar senkron.", "dl": [["Nerede işe yarar", "Misafir karşılama, Booking ve web sitesi videoları, sık sorulan sorulara yanıtlar."]], "tools": ["OpenArt", "ElevenLabs"]}, "dragon": {"m": "animasyon · 5 sn", "k": "Animasyon · 16:9 · 5 sn", "title": "Ejderhanın uyanışı", "lead": "Masal sahnesi: taş ejderha karanlık ormanda uyanıyor, içinde ışık yanıyor ve rengi kırmızıdan maviye dönüyor.", "dl": [["Görev", "5 saniyede atmosfer ve hikâye."]], "tools": ["Kling 3.0"]}, "lumia": {"m": "ürün çekimi · 3 kare", "k": "Ürün çekimi · eğitim projesi", "title": "LUMIA el kremi", "lead": "Pazaryeri veya Instagram için tek stilde üç karelik karusel; stüdyo ve fotoğrafçı olmadan.", "dl": [["Kareler", "Elde ürün, krem dokusu, cilde uygulama. Yumuşak gün ışığı, bej palet. Marka hayalidir."]], "tools": ["ChatGPT Images"]}, "chars": {"m": "karakter tasarımı", "k": "Karakter tasarımı", "title": "Aylin ve Mert", "lead": "İki çizgi filmin kahramanları. Tek bir referans görsel, her sahnede aynı görünmelerini sağlıyor.", "dl": [["Karakterler", "Aylin: enerjik, fotoğraf makinesi ve iki kıvırcık topuzu var. Mert: uzun boylu ve hep uykulu, boyun yastığı ve kocaman sırt çantasıyla."], ["Bölümler", "Kapadokya ve Kırgızistan. İkinci bölüm için Kırgız desenli sıcak kıyafetler giydiler."]], "tools": ["ChatGPT Images", "Kling 2.6"]}, "voice": {"m": "ses · müzik", "k": "Ses ve müzik", "title": "Sesler ve ses tasarımı", "lead": "ElevenLabs'te her videoya uygun sesler tasarlıyorum: sıcak bir otel müdürü, neşeli Aylin, uykucu Mert.", "dl": [["Diller", "Rusça ve Türkçe."]], "tools": ["ElevenLabs", "ses miksajı"], "audios": ["Archa House için Rusça anlatıcı", "Archa House için fon müziği", "Çizgi film sesi: Türkçe sesler, efektler ve müzik"]}, "kyrgyz": {"m": "çizgi film · 45 sn · bölüm 2", "k": "Çizgi film · 9:16 · 45 sn · bölüm 2", "title": "Kırgızistan", "lead": "Aylin ve Mert'in ikinci bölümü: buz gibi Issık Göl, Song Göl'de yurtlar, şapkayı çalan kartal ve atlarla gün doğumu.", "dl": [["Görev", "Seyahat serisinin devamı, 40 saniye, düşük bütçe: sadece üç adet 10 saniyelik video."], ["Yaptıklarım", "ChatGPT Images'ta sahneler, yeni kıyafetler, ElevenLabs'te 13 Türkçe replik, komuz tarzı müzik, efektler, iki altyazı versiyonu: Rusça + İngilizce ve Türkçe + İngilizce."]], "tools": ["Kling 2.6", "OpenArt", "ElevenLabs", "ChatGPT Images", "kurgu"]}};
+const REEL_TR = {"k": "Showreel · 16:9 · 60 sn", "title": "Showreel 2026", "lead": "Tüm işlerimin kısa kurgusu: çizgi filmler, çocuk dizisi, otel ve giyim reklamı, AI avatar, animasyon, ürün çekimi ve karakterler.", "dl": [["Ne için", "Müşteriye ilk gönderilecek şey: 40 saniyede neler yapabildiğim görülüyor."]], "tools": ["kurgu", "yukarıdaki tüm araçlar"]};
+const DICT = { en: EN, tr: TR };
+let LANG = "ru";
+const tr = (w, key) => { const L = LANG === "en" ? w._en : LANG === "tr" ? w._tr : null; return (L && L[key] !== undefined) ? L[key] : w[key]; };
+WORKS.forEach(w => { w._en = WEN[w.id]; w._tr = WTR[w.id]; }); REEL._en = REEL_EN; REEL._tr = REEL_TR;
+const origText = new Map(), origAttr = new Map();
+function applyLang(l) {
+  LANG = l;
+  document.documentElement.lang = l;
+  const walk = document.createTreeWalker(document.body, NodeFilter.SHOW_TEXT);
+  let n;
+  while ((n = walk.nextNode())) {
+    const p = n.parentElement;
+    if (!p || p.closest("script,style,#desk,.sheet,.toast")) continue;
+    if (!origText.has(n)) origText.set(n, n.nodeValue);
+    const ru = origText.get(n), key = ru.trim();
+    const D = DICT[l]; n.nodeValue = (D && D[key]) ? ru.replace(key, D[key]) : ru;
+  }
+  document.querySelectorAll("[aria-label],[alt],[title]").forEach(el => {
+    if (el.closest("#desk")) return;
+    ["aria-label", "alt", "title"].forEach(a => {
+      if (!el.hasAttribute(a)) return;
+      const k = el; if (!origAttr.has(k)) origAttr.set(k, {});
+      const store = origAttr.get(k); if (!(a in store)) store[a] = el.getAttribute(a);
+      const ru = store[a]; const D = DICT[l]; el.setAttribute(a, (D && D[ru]) ? D[ru] : ru);
+    });
+  });
+  document.querySelectorAll(".lang button").forEach(b => b.setAttribute("aria-pressed", String(b.dataset.l === l)));
+  renderDesk();
+  try { localStorage.setItem("zh-lang", l); } catch (e) {}
+}
+document.querySelectorAll(".lang button").forEach(b => b.addEventListener("click", () => applyLang(b.dataset.l)));
+let savedLang = "ru"; try { savedLang = localStorage.getItem("zh-lang") || "ru"; } catch (e) {}
+applyLang(["en", "tr"].includes(savedLang) ? savedLang : "ru");
+
+/* travel strip: slide to the end and back, each photo once */
+function setShift() { const m = document.querySelector(".marquee"), t = m && m.querySelector(".track"); if (!t) return;
+  t.style.setProperty("--shift", Math.max(0, t.scrollWidth - m.clientWidth) + "px"); }
+setShift(); addEventListener("resize", setShift); addEventListener("load", setShift);
+
+/* clock (Bishkek, UTC+6) */
+function tick() { const d = new Date(Date.now() + 6 * 3600e3); document.getElementById("clock").textContent = d.toISOString().slice(11, 16); }
+tick(); setInterval(tick, 30000);
+</script>
+</body></html>
